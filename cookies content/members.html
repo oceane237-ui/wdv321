@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WDV321 Advanced JavaScript</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            background-color:burlywood;
+        }
+        #container {
+            width:70%;
+            margin-left:auto;
+            margin-right:auto;
+            padding-left:15px;
+            padding-right:15px;
+            background-color: chocolate;
+        }
+
+        header {
+            text-align: center;
+        }
+
+        nav {
+            display:flex;
+            justify-content: space-between;
+            margin-bottom:15px;
+        }
+
+        main {
+            display:flex;
+        }
+
+        main section {
+            width:50%;
+            border:thin solid black;
+
+        }
+
+        section h2, section h3 {
+            text-align: center;
+        }
+
+        form {
+            width: 70%;
+            margin-left:auto;
+            margin-right:auto;
+        }
+
+        footer p {
+            text-align: center;
+        }
+
+        .pageHeader {
+            color:blue;
+        }
+    </style>
+    <script>
+        //Instructions:
+        //1. This page will check for an authorized user cookie.  If there isn't one return the user to the home/index page.
+        //      If it is an authorized user then display the page and contents.
+        //
+        //2. Each time an authorized user comes to this page display the current value of the hit counter next to "Current Activity:"
+        //
+        //3. Access the eventRegistration object from local storage.
+        //      Display the guest information as formatted content under "Current Registrations" in the right column
+        //      Number the guests
+        //
+        //4. Display Cookie button should show the current cookies in the console
+        //5. Delete Cookie button should delete the authorization
+        // 1. Check Authorization Cookie on Load
+function checkAu() {
+    let auUser = getCookie("authorizedUser");
+    if (!auUser) {
+        alert("Unauthorized access.");
+        window.location.href = "index.html";
+        return false;
+    }
+    return auUser;
+}
+function getCookie(name) {
+            let nameWithEquals = name + "=";
+            let cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                let cookie = cookies[i].trim();
+                if (cookie.indexOf(nameWithEquals) === 0) {
+                    return decodeURIComponent(
+                        cookie.substring(nameWithEquals.length)
+                    );
+                }
+            }
+            return null;
+        }
+function showMemberHitCounter() {
+            let hits = getCookie("hitCounter");
+            if (hits === null) {
+                hits = 0;
+            }
+            document.getElementById("hitCounter").innerText = hits;
+}
+ function displayRegistrations() {
+     let storedData = localStorage.getItem("eventRegistration");
+     let container = document.getElementById("registrationList");
+        if (!storedData) {container.innerHTML = "<p>No current registrations.</p>";
+                return;
+            }
+        try {let parsedObject = JSON.parse(storedData);
+    if (!parsedObject ||
+                !Array.isArray(parsedObject.registrations)) {
+                container.innerHTML =
+                "<p>No current registrations.</p>";
+                return;
+                }
+    let registrations = parsedObject.registrations;
+        if (registrations.length === 0) {
+         container.innerHTML =
+          "<p>No current registrations.</p>";
+         return;}
+        container.innerHTML = "";
+    let orderedList = document.createElement("ol");
+        registrations.forEach(function(registration) {
+    let listItem = document.createElement("li");
+    let name = document.createElement("p");
+         name.textContent = "Name: " + registration.name;
+    let email = document.createElement("p");
+          email.textContent = "Email: " + registration.email;
+    let phone = document.createElement("p");
+        phone.textContent = "Phone: " + registration.phone;
+    let date = document.createElement("p"); date.textContent = "Registration Date: " + registration.registrationDate;
+    listItem.appendChild(name); listItem.appendChild(email); listItem.appendChild(phone); istItem.appendChild(date); orderedList.appendChild(listItem);
+ });
+container.appendChild(orderedList);
+} catch (error) { console.error("Error reading registrations:", error); container.innerHTML =
+                    "<p>Unable to load registrations.</p>";
+            }
+        }
+document.addEventListener("DOMContentLoaded", function() {
+    let authorizedUser = checkAu();
+    if (!authorizedUser) {return;}
+        document.getElementById("memberUsername").innerText =
+                authorizedUser;
+            showMemberHitCounter();
+            displayRegistrations();
+    document.getElementById("year").innerText =
+                new Date().getFullYear();
+                 document.getElementById("displayCookieBtn").addEventListener("click", displayCookies);
+                 document.getElementById("deleteCookieBtn").addEventListener("click", deleteAuthorizationCookie);});  
+        function displayCookies() {
+            console.log("Current Cookies:", document.cookie);
+            alert("Check the browser console to view current cookies.");
+        }
+        function deleteAuthorizationCookie() {
+            document.cookie =
+                "authorizedUser=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/; SameSite=Lax";
+                alert("Authorization cookie deleted.");
+                window.location.href = "index.html";
+        }
+
+    </script>
+</head>
+<body>
+    <div id="container">
+
+        <header>
+            <h1>Science Fiction Book Club</h1>
+            <h2>"Predicting the future using or describing the future?"</h2>
+            <h2 class="pageHeader">Welcome Federation Members!</h2>
+            <p> Signed in as:<strong id="memberUsername"></strong></p>
+        </header>
+
+        <nav>
+            <div>
+                <a href="index.html"><button type="button">Home Page</button></a>
+                <a href="members.html"><button type="button">Members Page</button></a>
+            </div>
+        </nav>
+
+        <main>
+            <section class="leftColumn">
+                <h3>Member Information</h3>
+                <p>
+                    <button type="button" id="displayCookieBtn">Display Cookie</button>
+                    <button type="button" id="deleteCookieBtn">Delete Authorization Cookie</button>
+                </p>
+            </section>
+            <section class="rightColumn">
+                <h3>Upcoming Events</h3>
+                <div>
+                    <h3>"Did Star Trek predict AI?"</h3>
+                </div>
+                <div>
+                    <h3>Current Registrations</h3>
+                    <div id="registrationList"></div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Copyright &copy;<span id="year"></span>All rights reserved.</p>
+            <p>Current Activity:<span id="hitCounter"></span></p>
+        </footer>
+
+    </div>
+</body>
+</html>
